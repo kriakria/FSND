@@ -171,6 +171,34 @@ def create_app(test_config=None):
         except BaseException:
             abort(422)  # not able to process the request
 
+    # Edit actors
+
+    @app.route('/actors/<int:actor_id>', methods=['PATCH'])
+    def actor(actor_id):
+
+        actor_update = request.get_json()
+        new_name = actor_update.get('name', None)
+        new_age = actor_update.get('age', None)
+
+        try:
+            actor = Actor.query.get(actor_id)
+
+            if actor is None:
+                abort(404)
+
+            actor.update()
+
+            return jsonify({
+                'success': True,
+                'deleted': actor,
+                'actors': get_actors(),
+                'total_actors': len(get_actors())
+            })
+
+        except Exception as e:
+            print(e)
+            abort(422)  # not able to process the request
+
     # Movies
     # GET movies. This enpoint displays all the movies in the database.
 
@@ -255,25 +283,6 @@ def create_app(test_config=None):
 
         except Exception as e:
             print(e)
-            abort(422)  # not able to process the request
-
-        data = request.get_json()
-        new_title = data.get('title', None)
-        new_release_date = data.get('release_date', None)
-
-        try:
-            movie = Movie(title=new_title, release_date=new_release_date)
-            movie.insert()
-
-            return jsonify({
-                'success': True,
-                'movies': get_movies(),
-                'total_movies': len(get_movies()),
-                'title': new_title,
-                'release_date': new_release_date,
-            })
-
-        except BaseException:
             abort(422)  # not able to process the request
 
     # CAST
