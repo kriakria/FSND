@@ -71,6 +71,8 @@ def create_app(test_config=None):
 
 # Actors
 
+# GET actors. This enpoint displays all the actors in the database
+
   @app.route('/actors', methods=['GET'])
   def list_actors():
 
@@ -80,7 +82,32 @@ def create_app(test_config=None):
       'total_actors': len(get_actors())
     })
 
+  @app.route('/actors/<int:actor_id>', methods=['DELETE'])
+  def delete_actors(actor_id):
+
+    try:
+      actor = Actor.query.get(actor_id).one_or_none()
+
+      if actor is None:
+        abort(404)
+
+      else:
+        actor.delete()
+
+        return jsonify({
+          'success': True,
+          'deleted': actor,
+          'actors': get_actors(),
+          'total_actors': len(get_actors())
+        })
+    
+    except BaseException:
+      abort(422) # not able to process the request
+
+
 # Movies
+
+# GET movies. This enpoint displays all the movies in the database.
 
   @app.route('/movies', methods=['GET'])
   def list_moview():
