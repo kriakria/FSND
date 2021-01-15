@@ -64,7 +64,27 @@ def create_app(test_config=None):
       abort(404)
 
     return movie_data
-  
+
+# Get the cast from the database
+
+  def get_cast():
+    casts = Cast.query.all()
+
+    cast_data = []
+
+    for cast in casts:
+      cast_data.append({
+        'id': cast.id,
+        'movie_id': cast.movie_id,
+        'actor_id': cast.actor_id
+      })
+
+    if len(cast_data) == 0:
+      abort(404)
+
+    return cast_data
+
+
   @app.route('/')
   def starter_page():
     return 'hello'
@@ -82,11 +102,32 @@ def create_app(test_config=None):
       'total_actors': len(get_actors())
     })
 
+# DELETE actors.
+
+  @app.route('/actors/<actor_id>', methods=['GET'])
+  def get_one_actor(actor_id):
+    actor = Actor.query.get(actor_id)
+
+    actor_data =  []
+
+    actor_data.append({
+      'id': actor.id,
+      'name': actor.name,
+      'age': actor.age,
+      'gender': actor.gender
+    })
+
+    return jsonify({
+      'success': True,
+      'actor': actor_data
+    })
+  
+
   @app.route('/actors/<int:actor_id>', methods=['DELETE'])
   def delete_actors(actor_id):
 
     try:
-      actor = Actor.query.get(actor_id).one_or_none()
+      actor = Actor.query.get(actor_id)
 
       if actor is None:
         abort(404)
@@ -105,12 +146,38 @@ def create_app(test_config=None):
       abort(422) # not able to process the request
 
 
+# POST actors
+
+  @app.route('/actors/add', methods=['POST'])
+  def add_actors():
+
+    data = request.get_json()
+    new_name = data.get('name', None)
+    new_age = data.get('age', None)
+    new_gender = data.get('gender', None)
+
+    try:
+      actor = Actor(name=new_name, age=new_age, gender=new_gender)
+      actor.insert()
+
+      return jsonify({
+        'success': True,      
+        'actors': get_actors(),
+        'total_actors': len(get_actors()),
+        'name': new_name,
+        'age': new_age,
+        'gender': new_gender
+      })
+
+    except BaseException:
+      abort(422) # not able to process the request
+
 # Movies
 
 # GET movies. This enpoint displays all the movies in the database.
 
   @app.route('/movies', methods=['GET'])
-  def list_moview():
+  def list_movies():
 
     return jsonify({
       'success': True,
@@ -120,10 +187,10 @@ def create_app(test_config=None):
 
 
   @app.route('/movies/<int:movie_id>', methods=['DELETE'])
-  def delete_actors(movie_id):
+  def delete_movies(movie_id):
 
     try:
-      movie = Movie.query.get(movie_id).one_or_none()
+      movie = Movie.query.get(movie_id)
 
       if movie is None:
         abort(404)
@@ -141,6 +208,16 @@ def create_app(test_config=None):
     except BaseException:
       abort(422) # not able to process the request
 
+  # CAST
+
+
+  @app.route('/cast', methods=['GET'])
+  def list_cast():
+
+    return jsonify({
+      'success': True,
+      'cast': get_cast(),      
+    })
 
   return app
 
