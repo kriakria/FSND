@@ -118,6 +118,30 @@ def create_app(test_config=None):
       'total_movies': len(get_movies())
     })
 
+
+  @app.route('/movies/<int:movie_id>', methods=['DELETE'])
+  def delete_actors(movie_id):
+
+    try:
+      movie = Movie.query.get(movie_id).one_or_none()
+
+      if movie is None:
+        abort(404)
+
+      else:
+        movie.delete()
+
+        return jsonify({
+          'success': True,
+          'deleted': movie,
+          'actors': get_movies(),
+          'total_actors': len(get_movies())
+        })
+    
+    except BaseException:
+      abort(422) # not able to process the request
+
+
   return app
 
 APP = create_app()
