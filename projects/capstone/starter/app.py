@@ -26,6 +26,8 @@ def create_app(test_config=None):
 
     return response
 
+# Get the actors from the database
+
   def get_actors():
     actors = Actor.query.all()
 
@@ -43,10 +45,31 @@ def create_app(test_config=None):
       abort(404)      
 
     return actors_data
+
+# Get the movies from the database
+
+  def get_movies():
+    movies = Movie.query.all()
+
+    movie_data = []
+
+    for movie in movies:
+      movie_data.append({
+        'id': movie.id,
+        'title': movie.title,
+        'release_date': movie.release_date
+      })
+
+    if len(movie_data) == 0:
+      abort(404)
+
+    return movie_data
   
   @app.route('/')
   def starter_page():
     return 'hello'
+
+# Actors
 
   @app.route('/actors', methods=['GET'])
   def list_actors():
@@ -55,6 +78,17 @@ def create_app(test_config=None):
       'success': True,      
       'actors': get_actors(),
       'total_actors': len(get_actors())
+    })
+
+# Movies
+
+  @app.route('/movies', methods=['GET'])
+  def list_moview():
+
+    return jsonify({
+      'success': True,
+      'movies': get_movies(),
+      'total_movies': len(get_movies())
     })
 
   return app
