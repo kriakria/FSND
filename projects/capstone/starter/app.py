@@ -229,6 +229,53 @@ def create_app(test_config=None):
         except BaseException:
             abort(422)  # not able to process the request
 
+    # Edit movies
+
+    @app.route('/movies/<int:movie_id>', methods=['PATCH'])
+    def edit_movie(movie_id):
+
+        movie_update = request.get_json()
+        new_title = movie_update.get('title', None)
+        new_release_date = movie_update.get('release_date', None)
+
+        try:
+            movie = Movie.query.get(movie_id)
+
+            if movie is None:
+                abort(404)
+
+            movie.update()
+
+            return jsonify({
+                'success': True,
+                'deleted': movie,
+                'actors': get_movies(),
+                'total_actors': len(get_movies())
+            })
+
+        except Exception as e:
+            print(e)
+            abort(422)  # not able to process the request
+
+        data = request.get_json()
+        new_title = data.get('title', None)
+        new_release_date = data.get('release_date', None)
+
+        try:
+            movie = Movie(title=new_title, release_date=new_release_date)
+            movie.insert()
+
+            return jsonify({
+                'success': True,
+                'movies': get_movies(),
+                'total_movies': len(get_movies()),
+                'title': new_title,
+                'release_date': new_release_date,
+            })
+
+        except BaseException:
+            abort(422)  # not able to process the request
+
     # CAST
 
     @app.route('/cast', methods=['GET'])
