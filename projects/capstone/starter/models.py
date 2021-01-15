@@ -10,9 +10,11 @@ db_user = os.environ['DB_USER']
 db_password = os.environ['DB_PASSWORD']
 
 # set the database path
-db_path = "postgres://{}:{}@{}/{}".format(db_user, db_password, 'localhost:5432', db_name)
+db_path = "postgres://{}:{}@{}/{}". \
+    format(db_user, db_password, 'localhost:5432', db_name)
 
 db = SQLAlchemy()
+
 
 def setup_db(app, database_path=db_path):
     app.config['SQLALCHEMY_DATABASE_URI'] = db_path
@@ -34,8 +36,9 @@ class Movie(db.Model):
     title = Column(String, nullable=False)
     release_date = Column(DateTime)
 
-    def __repr__ (self):
-        return f'<Movie id {self.id}, Movie title {self.title}, Movie release date {self.release_date}>'
+    def __repr__(self):
+        return f'<Movie id {self.id}, Movie title {self.title}, \
+            Movie release date {self.release_date}>'
 
 
 '''
@@ -51,8 +54,9 @@ class Actor(db.Model):
     age = Column(Integer)
     gender = Column(String)
 
-    def __repr__ (self):
-        return f'<Actor id {self.id}, Actor name {self.name}, Actor age {self.age}, Actor gender {self.gender}>'
+    def __repr__(self):
+        return f'<Actor id {self.id}, Actor name {self.name}, \
+            Actor age {self.age}, Actor gender {self.gender}>'
 
 
 '''
@@ -67,5 +71,6 @@ class Cast(db.Model):
     movie_id = Column(Integer, ForeignKey('movies.id'), nullable=False)
     actor_id = Column(Integer, ForeignKey('actors.id'), nullable=False)
 
-    def __repr__ (self):
-        return f'<Cast id {self.id}, movie_id {self.movie_id}, actor_id {self.actor_id}>'
+    def __repr__(self):
+        return f'<Cast id {self.id}, movie_id {self.movie_id}, \
+            actor_id {self.actor_id}>'
