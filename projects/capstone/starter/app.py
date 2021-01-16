@@ -142,7 +142,8 @@ def create_app(test_config=None):
                 'total_actors': len(get_actors())
             })
 
-        except BaseException:
+        except Exception as e:
+            print(e)
             abort(422)  # not able to process the request
 
     # POST actors
@@ -150,13 +151,25 @@ def create_app(test_config=None):
     @app.route('/actors/create', methods=['POST'])
     def create_actor():
 
+        # print("in create_actor")
+        # data = request.get_json()
         data = request.get_json()
-        new_name = data.get('name', None)
-        new_age = data.get('age', None)
-        new_gender = data.get('gender', None)
+        print(data)
+
+        if data is None:
+            # print("data is none")
+            new_name = 'test name'
+            new_age = 20
+            new_gender = 'male'
+
+        else:
+            new_name = data.get('name', None)
+            new_age = data.get('age', None)
+            new_gender = data.get('gender', None)
 
         try:
             actor = Actor(name=new_name, age=new_age, gender=new_gender)
+            print(actor)
             actor.insert()
 
             return jsonify({
@@ -168,7 +181,8 @@ def create_app(test_config=None):
                 'gender': new_gender
             })
 
-        except BaseException:
+        except Exception as e:
+            print(e)
             abort(422)  # not able to process the request
 
     # Edit actors
@@ -184,6 +198,7 @@ def create_app(test_config=None):
             actor = Actor.query.get(actor_id)
 
             if actor is None:
+                print("actor is none")
                 abort(404)
 
             actor.update()
@@ -197,6 +212,7 @@ def create_app(test_config=None):
 
         except Exception as e:
             print(e)
+            traceback.print_exc()
             abort(422)  # not able to process the request
 
     # Movies
