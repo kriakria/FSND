@@ -54,9 +54,16 @@ class Actor(db.Model):
     age = Column(Integer)
     gender = Column(String)
 
+    def __init__(self, name, age, gender):
+        self.name = name
+        self.age = age
+        self.gender = gender
+
+    '''
     def __repr__(self):
         return f'<Actor id {self.id}, Actor name {self.name}, \
             Actor age {self.age}, Actor gender {self.gender}>'
+    '''
 
 
 '''
