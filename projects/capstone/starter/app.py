@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 
 from models import setup_db, Movie, Actor, Cast, db
+from auth.auth import AuthError, requires_auth, get_token_auth_header
 
 
 def create_app(test_config=None):
@@ -85,21 +86,39 @@ def create_app(test_config=None):
 
         return cast_data
 
+    @app.route('/capstone')
+    def capstone_info_page():
+        return 'The Casting Agency info page'
+
     @app.route('/')
     def starter_page():
         return 'Welcome to the Casting Agency'
 
-    # Actors
-    # GET actors. This enpoint displays all the actors in the database
+    '''
+    ACTORS
+    GET actors. This enpoint displays all the actors in the database.
+    This route can be accessed by the roles Casting Assistant,
+    Casting Director and Executive Producer.
+    '''
 
     @app.route('/actors', methods=['GET'])
-    def list_actors():
+    @requires_auth('get:actors-list')
+    def list_actors(jwt):
+        # def list_actors():
 
-        return jsonify({
-            'success': True,
-            'actors': get_actors(),
-            'total_actors': len(get_actors())
-        })
+        if len(get_actors()) == 0:
+            abort(401)
+
+        try:
+            return jsonify({
+                'success': True,
+                'actors': get_actors(),
+                'total_actors': len(get_actors())
+            }), 200
+
+        except Exception as e:
+            print(e)
+            abort(404)
 
     # Display an actor with a selected actor ID.
 
@@ -121,10 +140,15 @@ def create_app(test_config=None):
             'actor': actor_data
         })
 
-    # DELETE actors.
+    '''
+    DELETE actors. Actors can be deleted from the database.
+    This route can be accessed by the roles Casting Director
+    and Executive Producer, with the permission 'delete:actors'.
+    '''
 
     @app.route('/actors/<int:actor_id>', methods=['DELETE'])
-    def delete_actors(actor_id):
+    @requires_auth('delete:actors')
+    def delete_actors(jwt, actor_id):
 
         try:
             actor = Actor.query.get(actor_id)
@@ -146,7 +170,11 @@ def create_app(test_config=None):
             print(e)
             abort(422)  # not able to process the request
 
-    # POST actors
+    '''
+    POST actors. Actors can be created in the database.
+    This route can be accessed by the roles Casting Director
+    and Executive Producer.
+    '''
 
     @app.route('/actors/create', methods=['POST'])
     def create_actor():
@@ -215,11 +243,16 @@ def create_app(test_config=None):
             traceback.print_exc()
             abort(422)  # not able to process the request
 
-    # Movies
-    # GET movies. This enpoint displays all the movies in the database.
+    '''
+    MOVIES
+    GET movies. This enpoint displays all the movies in the database.
+    This route can be accessed by the roles Casting Assistant,
+    Casting Director and Executive Producer.
+    '''
 
     @app.route('/movies', methods=['GET'])
-    def list_movies():
+    @requires_auth('get:movies-list')
+    def list_movies(jwt):
 
         return jsonify({
             'success': True,
@@ -228,7 +261,8 @@ def create_app(test_config=None):
         })
 
     @app.route('/movies/<int:movie_id>', methods=['DELETE'])
-    def delete_movies(movie_id):
+    @requires_auth('delete:movies')
+    def delete_movies(jwt, movie_id):
 
         try:
             movie = Movie.query.get(movie_id)
@@ -249,10 +283,14 @@ def create_app(test_config=None):
         except BaseException:
             abort(422)  # not able to process the request
 
-    # POST movies
+    '''
+    POST movies. Movies can be created in the database.
+    This route can be accessed by the role Executive Producer.
+    '''
 
     @app.route('/movies/create', methods=['POST'])
-    def create_movie():
+    @requires_auth('post:movies')
+    def create_movie(jwt):
 
         data = request.get_json()
         new_title = data.get('title', None)
@@ -273,10 +311,15 @@ def create_app(test_config=None):
         except BaseException:
             abort(422)  # not able to process the request
 
-    # Edit movies
+    '''
+    PATCH movies. Movies can be created in the database.
+    This route can be accessed by the roles Casting Director
+    and Executive Producer.
+    '''
 
     @app.route('/movies/<int:movie_id>', methods=['PATCH'])
-    def edit_movie(movie_id):
+    @requires_auth('patch:movies')
+    def edit_movie(jwt, movie_id):
 
         movie_update = request.get_json()
         new_title = movie_update.get('title', None)
@@ -301,15 +344,80 @@ def create_app(test_config=None):
             print(e)
             abort(422)  # not able to process the request
 
-    # CAST
+    '''
+    CAST
+    GET cast. This enpoint displays all the movies and associated
+    actors.
+    This route can be accessed by the roles Casting Assistant,
+    Casting Director and Executive Producer.
+    '''
 
     @app.route('/cast', methods=['GET'])
-    def list_cast():
+    @requires_auth('get:actors-list')
+    def list_cast(jwt):
 
         return jsonify({
             'success': True,
             'cast': get_cast()
         })
+
+    '''
+    ERROR HANDLING
+    The error handlers use the @app.errorhandler(error) decorator.
+    Each error handler returns the error coda and the approprate message.
+    '''
+
+    @app.errorhandler(400)
+    def bad_request(error):
+
+        return jsonify({
+            'success': False,
+            'error': 400,
+            'message': 'Bad request'
+        }), 400
+
+    @app.errorhandler(404)
+    def not_found(error):
+
+        return jsonify({
+            'success': False,
+            'error': 404,
+            'message': 'Not found'
+        }), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+
+        return jsonify({
+            'success': False,
+            'error': 405,
+            'message': 'Method not allowed'
+        }), 405
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+                        "success": False,
+                        "error": 422,
+                        "message": "unprocessable"
+                        }), 422
+
+    @app.errorhandler(500)
+    def server_error(error):
+
+        return jsonify({
+            'success': False,
+            'error': 500,
+            'message': 'Internal server error'
+        }), 500
+
+    '''
+    The AuthError error handler returns the error and the error code.
+    '''
+
+    @app.errorhandler(AuthError)
+    def autherror(e):
+        return jsonify(e.error), e.status_code
 
     return app
 
