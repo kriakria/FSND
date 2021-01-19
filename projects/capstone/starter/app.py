@@ -88,11 +88,11 @@ def create_app(test_config=None):
 
     @app.route('/capstone')
     def capstone_info_page():
-        return 'The Casting Agency info page'
+        return 'The Capstone Casting Agency info page'
 
     @app.route('/')
     def starter_page():
-        return 'Welcome to the Casting Agency'
+        return 'Welcome to the Capstone Casting Agency'
 
     '''
     ACTORS
@@ -104,6 +104,26 @@ def create_app(test_config=None):
     @app.route('/actors', methods=['GET'])
     @requires_auth('get:actors-list')
     def list_actors(jwt):
+        # def list_actors():
+
+        if len(get_actors()) == 0:
+            abort(401)
+
+        try:
+            return jsonify({
+                'success': True,
+                'actors': get_actors(),
+                'total_actors': len(get_actors())
+            }), 200
+
+        except Exception as e:
+            print(e)
+            abort(404)
+
+    # TEST
+
+    @app.route('/actors-test', methods=['GET'])
+    def test_list_actors():
         # def list_actors():
 
         if len(get_actors()) == 0:
@@ -188,7 +208,46 @@ def create_app(test_config=None):
             # print("data is none")
             new_name = 'test name'
             new_age = 20
-            new_gender = 'male'
+            new_gender = 'male'            
+
+        else:
+            new_name = data.get('name', None)
+            new_age = data.get('age', None)
+            new_gender = data.get('gender', None)
+
+        try:
+            actor = Actor(name=new_name, age=new_age, gender=new_gender)
+            print(actor)
+            actor.insert()
+
+            return jsonify({
+                'success': True,
+                'actors': get_actors(),
+                'total_actors': len(get_actors()),
+                'name': new_name,
+                'age': new_age,
+                'gender': new_gender
+            })
+
+        except Exception as e:
+            print(e)
+            abort(422)  # not able to process the request
+
+    # TEST
+    @app.route('/actors/create-test', methods=['POST'])
+    def test_create_actor():
+
+        # print("in create_actor")
+        # data = request.get_json()
+        data = request.get_json()
+        print(data)
+
+        if data is None:
+            # print("data is none")
+            # new_name = 'test name'
+            # new_age = 20
+            # new_gender = 'male'
+            print("data is none")
 
         else:
             new_name = data.get('name', None)
@@ -218,12 +277,14 @@ def create_app(test_config=None):
     @app.route('/actors/<int:actor_id>', methods=['PATCH'])
     def actor(actor_id):
 
-        actor_update = request.get_json()
+        actor_update = request.get_json(force=True)
+        print(actor_update)
         new_name = actor_update.get('name', None)
         new_age = actor_update.get('age', None)
 
         try:
             actor = Actor.query.get(actor_id)
+            print(actor)
 
             if actor is None:
                 print("actor is none")
@@ -233,14 +294,13 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'deleted': actor,
+                'updated': actor,
                 'actors': get_actors(),
                 'total_actors': len(get_actors())
             })
 
         except Exception as e:
             print(e)
-            traceback.print_exc()
             abort(422)  # not able to process the request
 
     '''
