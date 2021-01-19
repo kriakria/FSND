@@ -59,10 +59,28 @@ class Actor(db.Model):
         self.age = age
         self.gender = gender
 
-    '''
-    def __repr__(self):
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete()
+        db.session.commit()
+
+    def format(self):
+        return{
+            'id': self.id,
+            'name': self.name,
+            'age': self.age,
+            'gender': self.gender
+        }
+
+    '''def __repr__(self):
         return f'<Actor id {self.id}, Actor name {self.name}, \
-            Actor age {self.age}, Actor gender {self.gender}>'
+            Actor age {self.age}, Actor gender {self.gender}>
     '''
 
 
