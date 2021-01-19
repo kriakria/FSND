@@ -104,10 +104,9 @@ def create_app(test_config=None):
     @app.route('/actors', methods=['GET'])
     @requires_auth('get:actors-list')
     def list_actors(jwt):
-        # def list_actors():
 
         if len(get_actors()) == 0:
-            abort(401)
+            abort(404)
 
         try:
             return jsonify({
@@ -120,7 +119,7 @@ def create_app(test_config=None):
             print(e)
             abort(404)
 
-    # TEST
+    # TEST - should be deleted before deployment
 
     @app.route('/actors-test', methods=['GET'])
     def test_list_actors():
@@ -181,7 +180,7 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'deleted': actor,
+                'deleted': actor.format(),
                 'actors': get_actors(),
                 'total_actors': len(get_actors())
             })
@@ -190,6 +189,33 @@ def create_app(test_config=None):
             print(e)
             abort(422)  # not able to process the request
 
+    # DELETE TEST
+
+    @app.route('/actors/test/<int:actor_id>', methods=['DELETE'])
+    # @requires_auth('delete:actors')
+    def TEST_delete_actors(actor_id):
+
+        actor = Actor.query.get(actor_id)
+
+        try:
+            # actor = Actor.query.get(actor_id)
+
+            if actor is None:
+                abort(404)
+
+            else:
+                actor.delete()
+
+            return jsonify({
+                'success': True,
+                'deleted': actor.format(),
+                'actors': get_actors(),
+                'total_actors': len(get_actors())
+            })
+
+        except Exception as e:
+            print(e)
+            abort(422)  # not able to process the request
     '''
     POST actors. Actors can be created in the database.
     This route can be accessed by the roles Casting Director
@@ -197,18 +223,13 @@ def create_app(test_config=None):
     '''
 
     @app.route('/actors/create', methods=['POST'])
-    def create_actor():
+    @requires_auth('post:actors')
+    def create_actor(jwt):
 
-        # print("in create_actor")
-        # data = request.get_json()
-        data = request.get_json()
-        print(data)
+        data = request.get_json('actor')
 
         if data is None:
-            # print("data is none")
-            new_name = 'test name'
-            new_age = 20
-            new_gender = 'male'            
+            abort(404)
 
         else:
             new_name = data.get('name', None)
@@ -217,37 +238,30 @@ def create_app(test_config=None):
 
         try:
             actor = Actor(name=new_name, age=new_age, gender=new_gender)
-            print(actor)
             actor.insert()
+
+            actors = get_actors()
+            total_actors = len(actors)
 
             return jsonify({
                 'success': True,
-                'actors': get_actors(),
-                'total_actors': len(get_actors()),
-                'name': new_name,
-                'age': new_age,
-                'gender': new_gender
+                'actors': actors,
+                'total_actors': total_actors,
+                'new_actor': actor.format()
             })
 
         except Exception as e:
             print(e)
             abort(422)  # not able to process the request
 
-    # TEST
+    # TEST without auth - to be deleted
     @app.route('/actors/create-test', methods=['POST'])
     def test_create_actor():
 
-        # print("in create_actor")
-        # data = request.get_json()
-        data = request.get_json()
-        print(data)
+        data = request.get_json('actor')
 
         if data is None:
-            # print("data is none")
-            # new_name = 'test name'
-            # new_age = 20
-            # new_gender = 'male'
-            print("data is none")
+            abort(404)
 
         else:
             new_name = data.get('name', None)
@@ -256,16 +270,16 @@ def create_app(test_config=None):
 
         try:
             actor = Actor(name=new_name, age=new_age, gender=new_gender)
-            print(actor)
             actor.insert()
+
+            actors = get_actors()
+            total_actors = len(actors)
 
             return jsonify({
                 'success': True,
-                'actors': get_actors(),
-                'total_actors': len(get_actors()),
-                'name': new_name,
-                'age': new_age,
-                'gender': new_gender
+                'actors': actors,
+                'total_actors': total_actors,
+                'new_actor': actor.format()
             })
 
         except Exception as e:
@@ -275,28 +289,34 @@ def create_app(test_config=None):
     # Edit actors
 
     @app.route('/actors/<int:actor_id>', methods=['PATCH'])
-    def actor(actor_id):
+    @requires_auth('patch:actors')
+    def actor(jwt, actor_id):
 
         actor_update = request.get_json(force=True)
-        print(actor_update)
         new_name = actor_update.get('name', None)
         new_age = actor_update.get('age', None)
+        new_gender = actor_update.get('gender', None)
 
         try:
             actor = Actor.query.get(actor_id)
-            print(actor)
 
             if actor is None:
-                print("actor is none")
                 abort(404)
+
+            actor.name = new_name
+            actor.age = new_age
+            actor.gender = new_gender
 
             actor.update()
 
+            actors = get_actors()
+            total_actors = len(actors)
+
             return jsonify({
                 'success': True,
-                'updated': actor,
-                'actors': get_actors(),
-                'total_actors': len(get_actors())
+                'updated': actor.format(),
+                'actors': actors,
+                'total_actors': total_actors
             })
 
         except Exception as e:
@@ -314,11 +334,19 @@ def create_app(test_config=None):
     @requires_auth('get:movies-list')
     def list_movies(jwt):
 
-        return jsonify({
-            'success': True,
-            'movies': get_movies(),
-            'total_movies': len(get_movies())
-        })
+        if len(get_movies()) == 0:
+            abort(404)
+
+        try:
+            return jsonify({
+                'success': True,
+                'movies': get_movies(),
+                'total_movies': len(get_movies())
+            }), 200
+
+        except Exception as e:
+            print(e)
+            abort(404)
 
     @app.route('/movies/<int:movie_id>', methods=['DELETE'])
     @requires_auth('delete:movies')
@@ -335,12 +363,13 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'deleted': movie,
+                'deleted': movie.format(),
                 'actors': get_movies(),
                 'total_actors': len(get_movies())
             })
 
-        except BaseException:
+        except Exception as e:
+            print(e)
             abort(422)  # not able to process the request
 
     '''
@@ -352,7 +381,11 @@ def create_app(test_config=None):
     @requires_auth('post:movies')
     def create_movie(jwt):
 
-        data = request.get_json()
+        data = request.get_json('movie')
+
+        if data is None:
+            abort(404)
+
         new_title = data.get('title', None)
         new_release_date = data.get('release_date', None)
 
@@ -360,15 +393,18 @@ def create_app(test_config=None):
             movie = Movie(title=new_title, release_date=new_release_date)
             movie.insert()
 
+            movies = get_movies()
+            total_movies = len(movies)
+
             return jsonify({
                 'success': True,
-                'movies': get_movies(),
-                'total_movies': len(get_movies()),
-                'title': new_title,
-                'release_date': new_release_date,
+                'movies': movies,
+                'total_movies': total_movies,
+                'new_movie': movie.format()
             })
 
-        except BaseException:
+        except Exception as e:
+            print(e)
             abort(422)  # not able to process the request
 
     '''
@@ -381,7 +417,7 @@ def create_app(test_config=None):
     @requires_auth('patch:movies')
     def edit_movie(jwt, movie_id):
 
-        movie_update = request.get_json()
+        movie_update = request.get_json(force=True)
         new_title = movie_update.get('title', None)
         new_release_date = movie_update.get('release_date', None)
 
@@ -391,13 +427,19 @@ def create_app(test_config=None):
             if movie is None:
                 abort(404)
 
+            movie.title = new_title
+            movie.release_date = new_release_date
+
             movie.update()
+
+            movies = get_movies()
+            total_movies = len(movies)
 
             return jsonify({
                 'success': True,
-                'deleted': movie,
-                'actors': get_movies(),
-                'total_actors': len(get_movies())
+                'deleted': movie.format(),
+                'movies': movies,
+                'total_movies': total_movies
             })
 
         except Exception as e:
