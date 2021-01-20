@@ -98,7 +98,6 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertTrue(data['new_actor'])
         self.assertTrue(data['actors'])
         self.assertTrue(data['total_actors'])
-        print(data['new_actor'])
 
 # This test should fail, without including a name of the actor
     def test_400_create_actors(self):
@@ -112,9 +111,9 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
 
-
 # ------------------------------------Testing editing actors-------------------
-# This test should pass, with a token from an executive producer
+
+    # This test should pass, with a token from an executive producer
     def test_patch_actors(self):
         res = self.client(). \
             patch('/actors/7',
@@ -128,7 +127,6 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertTrue(data['updated'])
         self.assertTrue(data['actors'])
         self.assertTrue(data['total_actors'])
-        print(data['updated'])
 
 # This test should fail, without including a name of the actor
     def test_400_patch_actors(self):
@@ -142,12 +140,11 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
 
-
 # ------------------------------------Testing delete actors--------------------
-# This test should pass, with a token from an executive producer
-    '''def test_delete_actors(self):
+    # This test should pass, with a token from an executive producer
+    def test_delete_actors(self):
         res = self.client(). \
-            delete('/actors/18',
+            delete('/actors/43',
                    headers={'Authorization': 'Bearer ' + self.exec_producer})
         data = json.loads(res.data)
 
@@ -156,10 +153,8 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertTrue(data['deleted'])
         self.assertTrue(data['actors'])
         self.assertTrue(data['total_actors'])
-        print(data['deleted'])
 
-
-# This test should fail, with a token from an assistent
+    # This test should fail, with a token from an assistent
     def test_401_delete_actors(self):
         res = self.client(). \
             delete('/actors/7',
@@ -168,12 +163,11 @@ class CapstoneTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 401)
         self.assertEqual(data['success'], False)
-        '''
 
 # ------------------------------------------MOVIES-----------------------------
 # ------------------------------------Testing list movies----------------------
 
-# This test should pass, with a token from a casting assistent
+    # This test should pass, with a token from a casting assistent
     def test_list_movies(self):
         res = self.client(). \
             get('/movies',
@@ -185,7 +179,7 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertTrue(data['movies'])
         self.assertTrue(data['total_movies'])
 
-# This test should fail, without a token from a casting assistent
+    # This test should fail, without a token from a casting assistent
     def test_401_list_movies_no_auth(self):
         res = self.client().get('/movies')
         data = json.loads(res.data)
@@ -194,7 +188,7 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
 
 # ------------------------------------Testing creating movies-----------------
-# This test should pass, with a token from an executive producer
+    # This test should pass, with a token from an executive producer
     def test_create_movies(self):
         res = self.client(). \
             post('/movies/create',
@@ -207,78 +201,72 @@ class CapstoneTestCase(unittest.TestCase):
         self.assertTrue(data['new_movie'])
         self.assertTrue(data['movies'])
         self.assertTrue(data['total_movies'])
-        print(data['new_movie'])
 
-# This test should fail, without including a name of the actor
-    '''def test_create_actors(self):
+    # This test should fail, without including a name of the actor
+    def test_400_create_movies(self):
         res = self.client(). \
-            post('/actors/create',
+            post('/movies/create',
                  headers={'Authorization': 'Bearer ' + self.exec_producer},
-                 json={'age': 4})
+                 json={'release_date': '01-01-2021'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
 
+# ------------------------------------Testing editing movies-------------------
 
-# ------------------------------------Testing editing actors-------------------
-# This test should pass, with a token from an executive producer
-    def test_patch_actors(self):
+    # This test should pass, with a token from an executive producer
+    def test_patch_movies(self):
         res = self.client(). \
-            patch('/actors/7',
+            patch('/movies/7',
                   headers={'Authorization': 'Bearer ' + self.exec_producer},
-                  json={'name': 'Johnny'})
+                  json={'title': 'Batman', 'release_date': '01-02-2023'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(data['updated']['id'], 7)
         self.assertTrue(data['updated'])
-        self.assertTrue(data['actors'])
-        self.assertTrue(data['total_actors'])
-        print(data['updated'])
+        self.assertTrue(data['movies'])
+        self.assertTrue(data['total_movies'])
 
 # This test should fail, without including a name of the actor
-    def test_400_patch_actors(self):
+    def test_400_patch_movies(self):
         res = self.client(). \
-            patch('/actors/7',
+            patch('/movies/7',
                   headers={'Authorization': 'Bearer ' + self.exec_producer},
-                  json={'age': 4})
+                  json={'release_date': '01-01-8008'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
-        '''
 
+# ------------------------------------Testing delete movies--------------------
 
-# ------------------------------------Testing delete actors--------------------
-# This test should pass, with a token from an executive producer
-    '''def test_delete_actors(self):
+    # This test should pass, with a token from an executive producer
+    def test_delete_movies(self):
         res = self.client(). \
-            delete('/actors/18',
+            delete('/movies/12',
                    headers={'Authorization': 'Bearer ' + self.exec_producer})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['deleted'])
-        self.assertTrue(data['actors'])
-        self.assertTrue(data['total_actors'])
-        print(data['deleted'])
+        self.assertTrue(data['movies'])
+        self.assertTrue(data['total_movies'])
 
-
-# This test should fail, with a token from an assistent
-    def test_404_delete_actors(self):
+    # This test should fail, with a token from an assistent
+    def test_404_delete_movies(self):
         res = self.client(). \
-            delete('/actors/7',
+            delete('/movies/8',
                    headers={'Authorization': 'Bearer ' + self.assistent})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 401)
         self.assertEqual(data['success'], False)
-        '''
 
 
 # Make the tests conveniently executable
