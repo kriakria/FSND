@@ -72,6 +72,10 @@ def create_app(test_config=None):
     def get_cast():
         casts = Cast.query.all()
 
+        if casts is None:
+            print("not available")
+            abort(404)
+
         cast_data = []
 
         for cast in casts:
@@ -117,7 +121,7 @@ def create_app(test_config=None):
 
         except Exception as e:
             print(e)
-            abort(404)
+            abort(422)
 
     # TEST - should be deleted before deployment
 
@@ -198,19 +202,19 @@ def create_app(test_config=None):
         actor = Actor.query.get(actor_id)
 
         try:
-            # actor = Actor.query.get(actor_id)
-
             if actor is None:
                 abort(404)
 
             else:
                 actor.delete()
+                actors = get_actors()
+                total_actors = len(actors)
 
             return jsonify({
                 'success': True,
                 'deleted': actor.format(),
-                'actors': get_actors(),
-                'total_actors': len(get_actors())
+                'actors': actors,
+                'total_actors': total_actors
             })
 
         except Exception as e:
@@ -297,16 +301,17 @@ def create_app(test_config=None):
         new_age = actor_update.get('age', None)
         new_gender = actor_update.get('gender', None)
 
-        try:
-            actor = Actor.query.get(actor_id)
+        actor = Actor.query.get(actor_id)
 
-            if actor is None:
-                abort(404)
+        if actor is None:
+            abort(404)
 
+        else:
             actor.name = new_name
             actor.age = new_age
             actor.gender = new_gender
 
+        try:
             actor.update()
 
             actors = get_actors()
@@ -352,20 +357,23 @@ def create_app(test_config=None):
     @requires_auth('delete:movies')
     def delete_movies(jwt, movie_id):
 
+        movie = Movie.query.get(movie_id)
+
         try:
-            movie = Movie.query.get(movie_id)
 
             if movie is None:
                 abort(404)
 
             else:
                 movie.delete()
+                movies = get_movies()
+                total_movies = len(movies)
 
             return jsonify({
                 'success': True,
                 'deleted': movie.format(),
-                'actors': get_movies(),
-                'total_actors': len(get_movies())
+                'movies': movies,
+                'total_movies': total_movies
             })
 
         except Exception as e:
@@ -382,16 +390,21 @@ def create_app(test_config=None):
     def create_movie(jwt):
 
         data = request.get_json('movie')
+        print(data)
 
         if data is None:
             abort(404)
 
-        new_title = data.get('title', None)
-        new_release_date = data.get('release_date', None)
+        else:
+            new_title = data.get('title', None)
+            print("new title: " + new_title)
+            new_release_date = data.get('release_date', None)
+            print("new release date: " + new_release_date)
 
         try:
             movie = Movie(title=new_title, release_date=new_release_date)
             movie.insert()
+            print(movie.format())
 
             movies = get_movies()
             total_movies = len(movies)
@@ -421,15 +434,18 @@ def create_app(test_config=None):
         new_title = movie_update.get('title', None)
         new_release_date = movie_update.get('release_date', None)
 
+        movie = Movie.query.get(movie_id)
+
+        if movie is None:
+            abort(404)
+
+        else:
+            if new_title is not None:
+                movie.title = new_title
+            if new_release_date is not None:
+                movie.release_date = new_release_date
+
         try:
-            movie = Movie.query.get(movie_id)
-
-            if movie is None:
-                abort(404)
-
-            movie.title = new_title
-            movie.release_date = new_release_date
-
             movie.update()
 
             movies = get_movies()
@@ -437,7 +453,7 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'deleted': movie.format(),
+                'updated': movie.format(),
                 'movies': movies,
                 'total_movies': total_movies
             })
@@ -450,13 +466,11 @@ def create_app(test_config=None):
     CAST
     GET cast. This enpoint displays all the movies and associated
     actors.
-    This route can be accessed by the roles Casting Assistant,
-    Casting Director and Executive Producer.
+    This route is public and can be accessed by anyone.
     '''
 
     @app.route('/cast', methods=['GET'])
-    @requires_auth('get:actors-list')
-    def list_cast(jwt):
+    def list_cast():
 
         return jsonify({
             'success': True,
@@ -477,6 +491,15 @@ def create_app(test_config=None):
             'error': 400,
             'message': 'Bad request'
         }), 400
+
+    @app.errorhandler(401)
+    def bad_request(error):
+
+        return jsonify({
+            'success': False,
+            'error': 401,
+            'message': 'No authorization'
+        }), 401
 
     @app.errorhandler(404)
     def not_found(error):
