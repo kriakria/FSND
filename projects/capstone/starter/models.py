@@ -2,12 +2,19 @@ import os
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 import json
+from dotenv import load_dotenv
 
 db_name = 'capstone'
 
+
+load_dotenv()  # loading the environment variables
+# getting the token values:
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+
 # get database user and password from env file
-db_user = os.environ['DB_USER']
-db_password = os.environ['DB_PASSWORD']
+# db_user = os.environ['DB_USER']
+# db_password = os.environ['DB_PASSWORD']
 
 # set the database path
 db_path = "postgres://{}:{}@{}/{}". \
@@ -21,7 +28,7 @@ def setup_db(app, database_path=db_path):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
-    # db.create_all()
+    db.create_all()
 
 
 '''
@@ -36,9 +43,32 @@ class Movie(db.Model):
     title = Column(String, nullable=False)
     release_date = Column(DateTime)
 
-    def __repr__(self):
+    def __init__(self, title, release_date):
+        self.title = title
+        self.release_date = release_date
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return{
+            'id': self.id,
+            'title': self.title,
+            'release_date': self.release_date,
+        }
+
+    '''def __repr__(self):
         return f'<Movie id {self.id}, Movie title {self.title}, \
             Movie release date {self.release_date}>'
+    '''
 
 
 '''
@@ -67,7 +97,7 @@ class Actor(db.Model):
         db.session.commit()
 
     def delete(self):
-        db.session.delete()
+        db.session.delete(self)
         db.session.commit()
 
     def format(self):
@@ -96,6 +126,29 @@ class Cast(db.Model):
     movie_id = Column(Integer, ForeignKey('movies.id'), nullable=False)
     actor_id = Column(Integer, ForeignKey('actors.id'), nullable=False)
 
-    def __repr__(self):
+    def __init__(self, movie_id, actor_id):
+        self.movie_id = movie_id
+        self.actor_id = actor_id
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return{
+            'id': self.id,
+            'move_id': self.movie_id,
+            'actor_id': self.actor_id,
+        }
+
+    '''def __repr__(self):
         return f'<Cast id {self.id}, movie_id {self.movie_id}, \
             actor_id {self.actor_id}>'
+    '''
