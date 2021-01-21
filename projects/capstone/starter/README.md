@@ -243,7 +243,20 @@ Submitted token (which can be expired at the time of review):
 eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkpIWGZWZ3plREptV2xBeWNpcDRxdyJ9.eyJpc3MiOiJodHRwczovL2tyaWFrcmlhLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2MDA1MzI2MjAzN2FjMjAwNzRiNjJkMWYiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAvY2Fwc3RvbmUiLCJpYXQiOjE2MTEyMjI3ODQsImV4cCI6MTYxMTMwOTE4NCwiYXpwIjoianpDTWJhc1YzVU9XS3d4OWtaY2hKSXpTOHFxZWlBaEQiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImRlbGV0ZTphY3RvcnMiLCJkZWxldGU6bW92aWVzIiwiZ2V0OmFjdG9ycy1saXN0IiwiZ2V0Om1vdmllcy1saXN0IiwicGF0Y2g6YWN0b3JzIiwicGF0Y2g6bW92aWVzIiwicG9zdDphY3RvcnMiLCJwb3N0Om1vdmllcyJdfQ.acgLBJf4GHGRrcvPf90YDhcFQTU2B-H-ntdWakI9CtEkCWt-PKpf3GQUmasGrFgqxY8rhB90KVYrukNfolyvcSKuXrRszfhCbJTedsVPUDOXP6TNN4ndPIY0jUXFZVAUCqMAl2nmH5QDwZq1fIaiTi3i8n5-_5YE6JyzLcGHelNCmOUGR9sUcfsFdehloKkBeg1cpcccEaSpcpbPK07DY6xee7A_bLAmsWUpKSswesbs3Ra4fajRW4dY0iKokVNvtTgrszFqiI8vfnAPUT_37lDrU44GN020KOli8lsCCB8ngoZihOeIjMTg-jGllymQ298Npojvzgsf9AWltg_akQ
 ```
 
-## Postman
+## Testing
+
+### test_app.py
+
+Two test cases are written for each endpoint, one that should pass and one fail.
+Before running the test cases, make sure that the movie_ids and actor_ids that are to be deleted or patched exist in the database.
+
+How to run the tests:
+
+```python
+python test_app.py
+```
+
+### Postman
 
 - Exported collection with configured tokens can be found at: Capstone.postman_collection.json
 - Test results containing 27 successful cases: Capstone.postman_test_run.json
