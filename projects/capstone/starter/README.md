@@ -49,12 +49,12 @@ Frontend is not yet built.
 1. Clone repository.
 2. pip install requirements.txt
 3. Run following commands:
- -- flask db init
- -- flask db migrate
- -- flask db upgrade
+    1. flask db init
+    2. flask db migrate
+    3. flask db upgrade
 4. Start server by running:
- -- export FLASK_APP=app.py (on Windows: set FLASK_APP=app.py)
- -- flask run --reload
+    1. export FLASK_APP=app.py (on Windows: set FLASK_APP=app.py)
+    2. flask run --reload
 
 ## Endpoints
 
