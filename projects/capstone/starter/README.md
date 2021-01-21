@@ -30,12 +30,12 @@ Project structure:
 - app.py
 - models.py
 - migrations
--- versions
--- alembic.ini
+  - versions
+  - alembic.ini
 - .env
 - auth
--- auth.py
--- .env
+  - auth.py
+  - .env
 - .gitignore
 - test_app.py
 - requirements.txt
