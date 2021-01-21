@@ -240,6 +240,9 @@ def create_app(test_config=None):
             new_age = data.get('age', None)
             new_gender = data.get('gender', None)
 
+        if new_name is None:
+            abort(400)
+
         try:
             actor = Actor(name=new_name, age=new_age, gender=new_gender)
             actor.insert()
@@ -300,6 +303,9 @@ def create_app(test_config=None):
         new_name = actor_update.get('name', None)
         new_age = actor_update.get('age', None)
         new_gender = actor_update.get('gender', None)
+
+        if new_name is None:
+            abort(400)
 
         actor = Actor.query.get(actor_id)
 
@@ -390,21 +396,22 @@ def create_app(test_config=None):
     def create_movie(jwt):
 
         data = request.get_json('movie')
-        print(data)
+        # print(data)
 
         if data is None:
             abort(404)
 
         else:
             new_title = data.get('title', None)
-            print("new title: " + new_title)
             new_release_date = data.get('release_date', None)
-            print("new release date: " + new_release_date)
+
+        if new_title is None:
+            abort(400)
 
         try:
             movie = Movie(title=new_title, release_date=new_release_date)
             movie.insert()
-            print(movie.format())
+            # print(movie.format())
 
             movies = get_movies()
             total_movies = len(movies)
@@ -444,6 +451,8 @@ def create_app(test_config=None):
                 movie.title = new_title
             if new_release_date is not None:
                 movie.release_date = new_release_date
+            if new_title is None:
+                abort(400)
 
         try:
             movie.update()
