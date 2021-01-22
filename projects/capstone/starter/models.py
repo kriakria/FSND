@@ -16,9 +16,14 @@ db_password = os.getenv('DB_PASSWORD')
 # db_user = os.environ['DB_USER']
 # db_password = os.environ['DB_PASSWORD']
 
-# set the database path
-db_path = "postgres://{}:{}@{}/{}". \
-    format(db_user, db_password, 'localhost:5432', db_name)
+# set the Heroku database path
+db_path = "postgres://mswtwueikeynok: \
+          074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ \
+          ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
+
+# local db path
+# db_path = "postgres://{}:{}@{}/{}".
+# format(db_user, db_password, 'localhost:5432', db_name)
 
 db = SQLAlchemy()
 
