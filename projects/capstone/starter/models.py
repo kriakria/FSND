@@ -17,9 +17,7 @@ db_password = os.getenv('DB_PASSWORD')
 # db_password = os.environ['DB_PASSWORD']
 
 # set the Heroku database path
-db_path = "postgres://mswtwueikeynok: \
-          074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ \
-          ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
+db_path = "postgres://mswtwueikeynok:074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
 
 # local db path
 # db_path = "postgres://{}:{}@{}/{}".
