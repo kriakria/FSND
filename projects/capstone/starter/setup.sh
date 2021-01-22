@@ -8,11 +8,11 @@ db_name = 'capstone'
 
 export db_path = "postgres://mswtwueikeynok:074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
 
-# Auth0
-export AUTH0_DOMAIN = 'kriakria.eu.auth0.com'
-export ALGORITHMS = ['RS256']
-export API_AUDIENCE = 'http://localhost:5000/capstone'
-export AUTH_CLIENT_ID = 'jzCMbasV3UOWKwx9kZchJIzS8qqeiAhD'
+# Auth0 complete before sumbitting
+export AUTH0_DOMAIN = 
+export ALGORITHMS = 
+export API_AUDIENCE = 
+export AUTH_CLIENT_ID = 
 
 # Tokens
 
