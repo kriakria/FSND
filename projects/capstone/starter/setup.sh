@@ -6,9 +6,7 @@ db_user = os.dotenv('db_user')
 db_password = os.dotenv('db_password')
 db_name = 'capstone'
 
-export = "postgres://mswtwueikeynok: \
-         074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ \
-         ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
+export db_path = "postgres://mswtwueikeynok:074a6ff712bd6dab3ec93118b31d70ac10b111f32d17c7e4c8afc1c0d18a23cb@ec2-3-216-181-219.compute-1.amazonaws.com:5432/dboednp2dv6b26"
 
 # Auth0
 export AUTH0_DOMAIN = 'kriakria.eu.auth0.com'
